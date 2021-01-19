@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MyApplication.SeekView" parent="Widget.AppCompat.SeekBar">
+        <item name="android:thumbTint">@color/blue_500</item>
+    </style>
+</resources>
