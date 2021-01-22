@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +19,7 @@ import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
 import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
-import com.kodexgroup.geomuteapp.screens.map.viewmodel.MapViewModel
+import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.format
 import java.util.*
@@ -30,8 +31,8 @@ class BottomSheetController(
     private val mBottomSheetBehavior: BottomSheetBehavior<NestedScrollView>,
     private val frame: LinearLayout) {
 
-    private var mapViewModel: MapViewModel = ViewModelProvider(fragment).get(MapViewModel::class.java)
-    private var checkAdd: LiveData<Boolean> = mapViewModel.getCheckLiveData()
+    private val mainViewModel: MainViewModel by fragment.activityViewModels()
+    private var checkAdd: LiveData<Boolean> = mainViewModel.getCheckLiveData()
 
     private val db = (fragment.requireContext().applicationContext as App).getDatabase()
     private val areasDao = db.areasDao()
@@ -90,16 +91,16 @@ class BottomSheetController(
 
         titleViewEditText.doOnTextChanged { text, _, _, _ ->
             Log.d("title", text.toString())
-            mapViewModel.newTitleMarker.value = text.toString()
+            mainViewModel.newTitleMarker.value = text.toString()
         }
 
         checkAdd.observe(fragment.viewLifecycleOwner) {
             Log.d("testingBug.fix", it.toString())
 
             if (it) {
-                mapViewModel.newTitleMarker.value = ""
-                mapViewModel.lastChoosePosition.value = null
-                mapViewModel.lastChooseRadius.value = null
+                mainViewModel.newTitleMarker.value = ""
+                mainViewModel.lastChoosePosition.value = null
+                mainViewModel.lastChooseRadius.value = null
                 setStartMode()
             } else {
                 titleViewEditText.setTextColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
@@ -153,37 +154,15 @@ class BottomSheetController(
                     currentArea = null
                 }.start()
 
-                mapViewModel.newTitleMarker.value = ""
-                mapViewModel.lastChoosePosition.value = null
-                mapViewModel.lastChooseRadius.value = null
+                mainViewModel.newTitleMarker.value = ""
+                mainViewModel.lastChoosePosition.value = null
+                mainViewModel.lastChooseRadius.value = null
                 setStartMode()
             }
         }
 
         editBtn.setOnClickListener {
-            if (!isEdit) {
-                editBtn.setBackgroundResource(R.drawable.button_style_close)
-                editBtn.setImageResource(R.drawable.ic_baseline_close_24)
-                isEdit = true
-
-                seekRadius.isEnabled = true
-
-                mainBtn.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.sub_main_500))
-                mainBtn.text = "Сохранить"
-            } else {
-                editBtn.setBackgroundResource(R.drawable.button_style)
-                editBtn.setImageResource(R.drawable.ic_baseline_edit_location_24)
-                isEdit = false
-
-                if (currentArea != null && isModify) {
-                    seekRadius.progress = currentArea!!.radius.toInt() / 100
-                }
-
-                seekRadius.isEnabled = false
-
-                mainBtn.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
-                mainBtn.text = "Удалить"
-            }
+            setEditMode()
         }
     }
 
@@ -204,7 +183,7 @@ class BottomSheetController(
         currentLatLng = latLng
         currentMarker = null
         currentArea = null
-        titleViewEditText.setText(mapViewModel.newTitleMarker.value)
+        titleViewEditText.setText(mainViewModel.newTitleMarker.value)
 
         titlePoint.visibility = View.GONE
         titleViewEditText.visibility = View.VISIBLE
@@ -236,7 +215,7 @@ class BottomSheetController(
         currentLatLng = marker.position
         currentMarker = marker
 
-        mapViewModel.newTitleMarker.value = ""
+        mainViewModel.newTitleMarker.value = ""
 
         val area = areasDao.getByTitle(marker.title)
         area.observe(fragment.viewLifecycleOwner, object : Observer<Areas> {
@@ -266,15 +245,46 @@ class BottomSheetController(
 
         choordsTxt.text = "${marker.position.latitude.format(6)}, ${marker.position.longitude.format(6)}"
 
+        val edit = mainViewModel.getEditOpenMarker()
+        if (edit) {
+            setEditMode()
+            mainViewModel.clearEditOpenMarker()
+        }
+
         frame.removeAllViews()
         frame.addView(setAreaViewBottom)
         mBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
+    private fun setEditMode() {
+        if (!isEdit) {
+            editBtn.setBackgroundResource(R.drawable.button_style_close)
+            editBtn.setImageResource(R.drawable.ic_baseline_close_24)
+            isEdit = true
+
+            seekRadius.isEnabled = true
+
+            mainBtn.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.sub_main_500))
+            mainBtn.text = "Сохранить"
+        } else {
+            editBtn.setBackgroundResource(R.drawable.button_style)
+            editBtn.setImageResource(R.drawable.ic_baseline_edit_location_24)
+            isEdit = false
+
+            if (currentArea != null && isModify) {
+                seekRadius.progress = currentArea!!.radius.toInt() / 100
+            }
+
+            seekRadius.isEnabled = false
+
+            mainBtn.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
+            mainBtn.text = "Удалить"
+        }
+    }
 
     private fun addMarker(title: String, latLng: LatLng, radius: Double) {
         val area = Areas(title, latLng, radius, Date().time)
 
-        mapViewModel.tryAddAreas(area)
+        mainViewModel.tryAddAreas(area)
     }
 }

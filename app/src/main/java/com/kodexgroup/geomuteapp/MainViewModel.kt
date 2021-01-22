@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.screens.map.viewmodel
+package com.kodexgroup.geomuteapp
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
@@ -14,7 +14,7 @@ import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.utils.App
 
-class MapViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var db: AppDatabase = getApplication<App>().getDatabase()
     private var areasDao: AreasDAO = db.areasDao()
 
@@ -23,6 +23,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var newTitleMarker: MutableLiveData<String> = MutableLiveData()
     var checkLocation: MutableLiveData<Boolean?> = MutableLiveData()
 
+    private val _editOpenMarker: MutableLiveData<Boolean> = MutableLiveData()
+    private val _openMarker: MutableLiveData<String?> = MutableLiveData()
     private val _addCheckLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun tryAddAreas(area: Areas) {
@@ -39,5 +41,33 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getCheckLiveData() : LiveData<Boolean> {
         return _addCheckLiveData
+    }
+
+    fun getAreas() : LiveData<List<Areas>> {
+        return areasDao.getAllDescByDate()
+    }
+
+    fun setOpenMarker(title: String) {
+        _openMarker.value = title
+    }
+
+    fun clearOpenMarker() {
+        _openMarker.value = null
+    }
+
+    fun getOpenMarker() : String? {
+        return _openMarker.value
+    }
+
+    fun setEditOpenMarker(isEdit: Boolean) {
+        _editOpenMarker.value = isEdit
+    }
+
+    fun clearEditOpenMarker() {
+        _editOpenMarker.value = false
+    }
+
+    fun getEditOpenMarker() : Boolean {
+        return _editOpenMarker.value ?: false
     }
 }

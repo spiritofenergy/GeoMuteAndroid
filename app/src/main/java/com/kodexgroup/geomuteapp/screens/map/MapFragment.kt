@@ -1,7 +1,9 @@
 package com.kodexgroup.geomuteapp.screens.map
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +12,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -25,7 +27,7 @@ import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.controllers.BottomSheetController
 import com.kodexgroup.geomuteapp.screens.map.controllers.MapController
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.screens.map.viewmodel.MapViewModel
+import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import com.kodexgroup.geomuteapp.utils.getBitmapFromVector
@@ -37,7 +39,7 @@ class MapFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var db: AppDatabase
     private lateinit var areasDao: AreasDAO
-    private lateinit var mapViewModel: MapViewModel
+    private val mapViewModel: MainViewModel by activityViewModels()
 
     private lateinit var addBtn: Button
 
@@ -50,6 +52,8 @@ class MapFragment : Fragment() {
     private val markers: MutableList<Pair<MarkerOptions, CircleOptions>> = mutableListOf()
 
     private lateinit var areasLiveData: LiveData<List<Areas>>
+
+    private var settingOpened = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,7 +89,6 @@ class MapFragment : Fragment() {
         )
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
         mapController = MapController(
                 this,
                 requireActivity(),
@@ -190,6 +193,25 @@ class MapFragment : Fragment() {
         return root
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (settingOpened) {
+            settingOpened = false
+            mapController.getDeviceLocation()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapController.stopLocationUpdates()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("clearMap", "creal")
+        mapController.clearMap()
+    }
+
     override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<String?>,
@@ -219,5 +241,10 @@ class MapFragment : Fragment() {
             outState.putFloat("tilt", mapController.mMap!!.cameraPosition.tilt)
             outState.putFloat("bearing", mapController.mMap!!.cameraPosition.bearing)
         }
+    }
+
+    fun openSetting() {
+        settingOpened = true
+        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
     }
 }

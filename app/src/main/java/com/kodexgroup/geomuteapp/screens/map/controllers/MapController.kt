@@ -2,17 +2,23 @@ package com.kodexgroup.geomuteapp.screens.map.controllers
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -22,11 +28,12 @@ import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
 import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.screens.map.viewmodel.MapViewModel
+import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+import java.util.*
 
 class MapController(
-    fragment: MapFragment,
+    private val fragment: MapFragment,
     private val activity: Activity,
     private val context: Context,
     private val fusedLocationClient: FusedLocationProviderClient
@@ -38,7 +45,7 @@ class MapController(
     var mLastKnownLocation: Location? = null
     var position: CameraPosition? = null
 
-    private val mapViewModel: MapViewModel = ViewModelProvider(fragment).get(MapViewModel::class.java)
+    private val mainViewModel: MainViewModel by fragment.activityViewModels()
 
     private var markersList: MutableList<Pair<Marker?, Circle?>> = mutableListOf()
 
@@ -47,7 +54,19 @@ class MapController(
 
     private var setListener: SetMarkerListener? = null
 
-
+    private var locationCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            if (locationResult == null) {
+                mainViewModel.checkLocation.value = null
+                return
+            } else {
+                for (location in locationResult.locations) {
+                    mLastKnownLocation = location
+                    mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+                }
+            }
+        }
+    }
 
     var isExist = false
 
@@ -72,7 +91,7 @@ class MapController(
                     .fillColor(R.color.blue_500_a)
             )
 
-            mapViewModel.lastChooseRadius.value = mLastCircle
+            mainViewModel.lastChooseRadius.value = mLastCircle
 
             markersList.add(Pair(null, mLastCircle!!))
         }
@@ -87,36 +106,7 @@ class MapController(
         }
 
         mMap?.setOnMarkerClickListener {
-            if (isExist) {
-                mLastMarker = null
-                mLastCircle = null
-            }
-
-            if (it.position.latitude != mLastMarker?.position?.latitude &&
-                    it.position.longitude != mLastMarker?.position?.longitude) {
-
-                isExist = true
-
-                mLastMarker?.remove()
-                mLastCircle?.remove()
-
-                mLastMarker = it
-
-                mapViewModel.lastChoosePosition.value = mLastMarker
-
-                for ((_, circle) in markersList) {
-
-                    if (circle != null && it.position.latitude == circle.center.latitude &&
-                            it.position.longitude == circle.center.longitude) {
-                        mLastCircle = circle
-                        mapViewModel.lastChooseRadius.value = mLastCircle
-                    }
-                }
-
-                setCameraInPosition(it.position)
-
-                setListener?.onSetExistMarker(it)
-            }
+            setExistMarker(it)
 
             return@setOnMarkerClickListener true
         }
@@ -154,8 +144,8 @@ class MapController(
                             .fillColor(R.color.blue_500_a)
             )
 
-            mapViewModel.lastChoosePosition.value = mLastMarker
-            mapViewModel.lastChooseRadius.value = mLastCircle
+            mainViewModel.lastChoosePosition.value = mLastMarker
+            mainViewModel.lastChooseRadius.value = mLastCircle
 
             setCameraInPosition(latLng)
 
@@ -163,12 +153,45 @@ class MapController(
             setListener?.onSetMarker(latLng)
         } else {
             isExist = true
-            mapViewModel.lastChoosePosition.value = mLastMarker
-            mapViewModel.lastChooseRadius.value = mLastCircle
+            mainViewModel.lastChoosePosition.value = mLastMarker
+            mainViewModel.lastChooseRadius.value = mLastCircle
 
             setCameraInPosition(mLastMarker!!.position)
 
             setListener?.onSetExistMarker(mLastMarker!!)
+        }
+    }
+
+    private fun setExistMarker(marker: Marker) {
+        if (isExist) {
+            mLastMarker = null
+            mLastCircle = null
+        }
+
+        if (marker.position.latitude != mLastMarker?.position?.latitude &&
+                marker.position.longitude != mLastMarker?.position?.longitude) {
+
+            isExist = true
+
+            mLastMarker?.remove()
+            mLastCircle?.remove()
+
+            mLastMarker = marker
+
+            mainViewModel.lastChoosePosition.value = mLastMarker
+
+            for ((_, circle) in markersList) {
+
+                if (circle != null && marker.position.latitude == circle.center.latitude &&
+                        marker.position.longitude == circle.center.longitude) {
+                    mLastCircle = circle
+                    mainViewModel.lastChooseRadius.value = mLastCircle
+                }
+            }
+
+            setCameraInPosition(marker.position)
+
+            setListener?.onSetExistMarker(marker)
         }
     }
 
@@ -201,16 +224,53 @@ class MapController(
     }
 
     fun getLocationPermission() {
+        val permissions = mutableListOf<String>()
         if (ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 )
                 == PackageManager.PERMISSION_GRANTED
         ) {
+            Log.d("per", "true1")
             mLocationPermissionGranted = true
         } else {
+            Log.d("per", "false1")
+            mLocationPermissionGranted = false
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("per", "true2")
+            mLocationPermissionGranted = true and mLocationPermissionGranted
+        } else {
+            Log.d("per", "false2")
+            mLocationPermissionGranted = false
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
+                    == PackageManager.PERMISSION_GRANTED
+            ) {
+                mLocationPermissionGranted = true and mLocationPermissionGranted
+            } else {
+                mLocationPermissionGranted = false
+                    permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            }
+        }
+
+        if (!mLocationPermissionGranted) {
+            Log.d("per", mLocationPermissionGranted.toString())
             ActivityCompat.requestPermissions(
-                    activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    activity, permissions.toTypedArray(),
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
             )
         }
@@ -267,9 +327,19 @@ class MapController(
         )
     }
 
-    private fun getDeviceLocation() {
+    fun getDeviceLocation() {
         try {
             if (mLocationPermissionGranted) {
+
+                fusedLocationClient.requestLocationUpdates(LocationRequest().apply {
+                    priority = PRIORITY_BALANCED_POWER_ACCURACY
+                    interval = 10000
+                    fastestInterval = 5000
+                    maxWaitTime = 20000
+                },
+                locationCallback,
+                Looper.getMainLooper())
+
                 val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
                 locationResult.addOnCompleteListener(activity) { task ->
@@ -277,7 +347,9 @@ class MapController(
                         // Set the map's camera position to the current location of the device.
                         mLastKnownLocation = task.result
                         if (mLastKnownLocation != null) {
-                            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+                            mMap?.isMyLocationEnabled = true
+                            mMap?.uiSettings?.isMyLocationButtonEnabled = true
+                            mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
 
                             Log.d("lat", position.toString())
                             if (position != null) {
@@ -295,8 +367,13 @@ class MapController(
                                         )
                                 )
                             }
+                            Log.d("mapReadyLog", "READY")
+                            getOpenMarker()
                         } else {
-                            getDeviceLocation()
+                            getAlertDialog()
+                            mMap?.isMyLocationEnabled = false
+                            mMap?.uiSettings?.isMyLocationButtonEnabled = false
+                            mLastKnownLocation = null
                         }
                     } else {
                         Log.d("geo", "Current location is null. Using defaults.")
@@ -333,13 +410,76 @@ class MapController(
         }
 
         if (mLastKnownLocation == null) {
-            mapViewModel.checkLocation.value = null
+            mainViewModel.checkLocation.value = null
         } else {
-            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+            mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
         }
+
+        Log.d("mapReadyLog", "READY")
     }
 
     fun setMarker(options: MarkerOptions?) {
         mLastMarker = mMap?.addMarker(options)
+    }
+
+    private fun getMarkerByTitle(title: String) : Marker? {
+        Log.d("opens", markersList.size.toString())
+        for ((marker, _) in markersList) {
+            Log.d("opens", marker?.title.toString())
+            if (marker != null && marker.title == title) {
+                Log.d("opens", marker.title)
+                return marker
+            }
+        }
+        return null
+    }
+
+    private fun getOpenMarker() {
+        val opensTitle = mainViewModel.getOpenMarker()
+        if (opensTitle != null) {
+            Log.d("opens", opensTitle)
+            val marker = getMarkerByTitle(opensTitle)
+            if (marker != null) {
+                Log.d("opens", marker.toString())
+                setExistMarker(marker)
+                mainViewModel.clearOpenMarker()
+            }
+        }
+    }
+
+    private fun getAlertDialog() {
+
+        val alertDialog = AlertDialog.Builder(fragment.requireContext())
+            .setTitle("Позиция устройства не определена")
+            .setMessage("Включите геолокацию или обновите карту")
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton("Настройки", null)
+            .setNegativeButton("Обновить", null)
+            .create()
+
+        alertDialog.setOnShowListener {
+            Log.d("openAlert", "OPEN")
+            val positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeBtn = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            positiveBtn.setOnClickListener {
+                alertDialog.dismiss()
+                fragment.openSetting()
+            }
+            negativeBtn.setOnClickListener {
+                getDeviceLocation()
+            }
+        }
+
+        alertDialog.show()
+    }
+
+    fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun clearMap() {
+        mainViewModel.lastChoosePosition.value = null
+        mainViewModel.lastChooseRadius.value = null
     }
 }
