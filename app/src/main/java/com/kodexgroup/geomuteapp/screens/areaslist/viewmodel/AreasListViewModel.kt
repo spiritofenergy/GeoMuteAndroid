@@ -1,7 +1,19 @@
 package com.kodexgroup.geomuteapp.screens.areaslist.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import com.kodexgroup.geomuteapp.database.AppDatabase
+import com.kodexgroup.geomuteapp.database.dao.AreasDAO
+import com.kodexgroup.geomuteapp.database.entities.Areas
+import com.kodexgroup.geomuteapp.utils.App
 
-class AreasListViewModel : ViewModel() {
+class AreasListViewModel(application: Application) : AndroidViewModel(application) {
+    private var db: AppDatabase = getApplication<App>().getDatabase()
+    private var areasDao: AreasDAO = db.areasDao()
+
+    fun getAreas() : LiveData<List<Areas>> {
+        return areasDao.getAllDescByDate()
+    }
 
 }

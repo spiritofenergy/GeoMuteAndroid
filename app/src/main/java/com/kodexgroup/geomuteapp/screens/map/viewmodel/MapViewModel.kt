@@ -2,6 +2,7 @@ package com.kodexgroup.geomuteapp.screens.map.viewmodel
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -20,6 +21,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var lastChoosePosition: MutableLiveData<Marker> = MutableLiveData()
     var lastChooseRadius: MutableLiveData<Circle> = MutableLiveData()
     var newTitleMarker: MutableLiveData<String> = MutableLiveData()
+    var checkLocation: MutableLiveData<Boolean?> = MutableLiveData()
 
     private val _addCheckLiveData: MutableLiveData<Boolean> = MutableLiveData()
 

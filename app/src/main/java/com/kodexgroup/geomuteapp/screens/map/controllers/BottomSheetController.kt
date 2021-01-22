@@ -116,7 +116,18 @@ class BottomSheetController(
         mainBtn.setOnClickListener {
             if (currentMarker == null) {
                 if (titleViewEditText.text.isNotEmpty()) {
-                    addMarker(titleViewEditText.text.toString(), currentLatLng, radius.toDouble())
+                    if (radius == 0) {
+                        progressView.setTextColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
+                        Timer().schedule(object : TimerTask() {
+                            override fun run() {
+                                if (fragment.isAdded) {
+                                    progressView.setTextColor(ContextCompat.getColor(fragment.requireContext(), R.color.black))
+                                }
+                            }
+                        }, 4000)
+                    } else {
+                        addMarker(titleViewEditText.text.toString(), currentLatLng, radius.toDouble())
+                    }
                 } else {
                     titleViewEditText.setHintTextColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
                     Timer().schedule(object : TimerTask() {
@@ -210,8 +221,10 @@ class BottomSheetController(
         choordsTxt.text = "${latLng.latitude.format(6)}, ${latLng.longitude.format(6)}"
         if (radius != null) {
             seekRadius.progress = radius
+            this.radius = radius
         } else {
             seekRadius.progress = 0
+            this.radius = 0
         }
 
         frame.removeAllViews()

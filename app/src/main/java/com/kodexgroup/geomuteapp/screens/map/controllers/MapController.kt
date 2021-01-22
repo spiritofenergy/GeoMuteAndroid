@@ -35,24 +35,26 @@ class MapController(
     var mMap: GoogleMap? = null
     var mLocationPermissionGranted: Boolean = false
     private var mDefaultLocation: LatLng = LatLng(0.0, 0.0)
-    private var mLastKnownLocation: Location? = null
+    var mLastKnownLocation: Location? = null
     var position: CameraPosition? = null
 
     private val mapViewModel: MapViewModel = ViewModelProvider(fragment).get(MapViewModel::class.java)
 
-    private val circles: MutableList<Circle> = mutableListOf()
+    private var markersList: MutableList<Pair<Marker?, Circle?>> = mutableListOf()
 
     var mLastMarker: Marker? = null
     var mLastCircle: Circle? = null
 
     private var setListener: SetMarkerListener? = null
 
+
+
     var isExist = false
 
     val resizeRadiusListener: ResizeRadiusListener = object : ResizeRadiusListener {
         override fun onResize(center: LatLng, radius: Int) {
-            for (circle in circles) {
-                if (center.latitude == circle.center.latitude &&
+            for ((_, circle) in markersList) {
+                if (circle != null && center.latitude == circle.center.latitude &&
                         center.longitude == circle.center.longitude) {
                     mLastCircle = circle
                 }
@@ -60,6 +62,7 @@ class MapController(
 
             mLastCircle?.remove()
 
+            Log.d("circle", "CREATE_1")
             mLastCircle = mMap?.addCircle(
                 CircleOptions()
                     .center(center)
@@ -71,7 +74,7 @@ class MapController(
 
             mapViewModel.lastChooseRadius.value = mLastCircle
 
-            circles.add(mLastCircle!!)
+            markersList.add(Pair(null, mLastCircle!!))
         }
     }
 
@@ -80,37 +83,7 @@ class MapController(
 
         // event of click on map
         mMap?.setOnMapClickListener {
-
-            if (isExist) {
-                isExist = false
-                mLastMarker = null
-                mLastCircle = null
-            }
-
-            mLastMarker?.remove()
-            mLastCircle?.remove()
-
-            mLastMarker = mMap?.addMarker(
-                    MarkerOptions()
-                            .position(it)
-                            .title("new")
-            )
-
-            mLastCircle = mMap?.addCircle(
-                    CircleOptions()
-                            .center(it)
-                            .radius(0.0)
-                            .strokeWidth(3f)
-                            .strokeColor(R.color.blue_500)
-                            .fillColor(R.color.blue_500_a)
-            )
-
-            mapViewModel.lastChoosePosition.value = mLastMarker
-            mapViewModel.lastChooseRadius.value = mLastCircle
-
-            setCameraInPosition(it)
-
-            setListener?.onSetMarker(it)
+            setMarkerByLatLng(it)
         }
 
         mMap?.setOnMarkerClickListener {
@@ -131,9 +104,9 @@ class MapController(
 
                 mapViewModel.lastChoosePosition.value = mLastMarker
 
-                for (circle in circles) {
+                for ((_, circle) in markersList) {
 
-                    if (it.position.latitude == circle.center.latitude &&
+                    if (circle != null && it.position.latitude == circle.center.latitude &&
                             it.position.longitude == circle.center.longitude) {
                         mLastCircle = circle
                         mapViewModel.lastChooseRadius.value = mLastCircle
@@ -150,6 +123,77 @@ class MapController(
 
         updateLocationUI()
         getDeviceLocation()
+    }
+
+    fun setMarkerByLatLng(latLng: LatLng) {
+        if (isExist) {
+            isExist = false
+            mLastMarker = null
+            mLastCircle = null
+        }
+
+        mLastMarker?.remove()
+        mLastCircle?.remove()
+
+        mLastMarker = mMap?.addMarker(
+                MarkerOptions()
+                        .position(latLng)
+                        .title("new")
+        )
+
+        val isNear = checkIsNear(mLastMarker!!.position, true)
+
+        if (!isNear) {
+            Log.d("circle", "CREATE_2")
+            mLastCircle = mMap?.addCircle(
+                    CircleOptions()
+                            .center(latLng)
+                            .radius(0.0)
+                            .strokeWidth(3f)
+                            .strokeColor(R.color.blue_500)
+                            .fillColor(R.color.blue_500_a)
+            )
+
+            mapViewModel.lastChoosePosition.value = mLastMarker
+            mapViewModel.lastChooseRadius.value = mLastCircle
+
+            setCameraInPosition(latLng)
+
+
+            setListener?.onSetMarker(latLng)
+        } else {
+            isExist = true
+            mapViewModel.lastChoosePosition.value = mLastMarker
+            mapViewModel.lastChooseRadius.value = mLastCircle
+
+            setCameraInPosition(mLastMarker!!.position)
+
+            setListener?.onSetExistMarker(mLastMarker!!)
+        }
+    }
+
+    private fun checkIsNear(latLng: LatLng, replace: Boolean = false) : Boolean {
+        var isNear = false
+
+        for ((marker, circle) in markersList) {
+            val dist = FloatArray(1)
+            if (marker != null) {
+                Location.distanceBetween(latLng.latitude, latLng.longitude,
+                        marker.position.latitude, marker.position.longitude, dist)
+                if ((circle != null && dist[0] <= circle.radius) && !isNear) {
+                    if (replace) {
+                        mLastMarker?.remove()
+                        mLastCircle?.remove()
+                        mLastMarker = marker
+                        mLastCircle = circle
+                    }
+                    isNear = true
+                    break
+                }
+            }
+        }
+
+        return isNear
     }
 
     fun setOnSetMarkerListener(listener: SetMarkerListener) {
@@ -233,6 +277,8 @@ class MapController(
                         // Set the map's camera position to the current location of the device.
                         mLastKnownLocation = task.result
                         if (mLastKnownLocation != null) {
+                            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+
                             Log.d("lat", position.toString())
                             if (position != null) {
                                 Log.d("lat", "EXIST")
@@ -274,18 +320,22 @@ class MapController(
 
     fun updateMap(markers: List<Pair<MarkerOptions, CircleOptions>>) {
         mMap?.clear()
-        circles.clear()
+        markersList.clear()
 
         mLastCircle = null
         mLastMarker = null
 
         for ((marker, circle) in markers ) {
-            mMap?.addMarker(marker)
+            val m = mMap?.addMarker(marker)
             val c = mMap?.addCircle(circle)
 
-            if (c != null) {
-                circles.add(c)
-            }
+            markersList.add(Pair(m, c))
+        }
+
+        if (mLastKnownLocation == null) {
+            mapViewModel.checkLocation.value = null
+        } else {
+            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
         }
     }
 

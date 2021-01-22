@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
@@ -37,6 +38,8 @@ class MapFragment : Fragment() {
     private lateinit var db: AppDatabase
     private lateinit var areasDao: AreasDAO
     private lateinit var mapViewModel: MapViewModel
+
+    private lateinit var addBtn: Button
 
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<NestedScrollView>
     private lateinit var frame: LinearLayout
@@ -71,6 +74,7 @@ class MapFragment : Fragment() {
 
         mBottomSheetBehavior = BottomSheetBehavior.from(root.findViewById(R.id.bottom_map_area))
         frame = root.findViewById(R.id.frame)
+        addBtn = root.findViewById(R.id.add_area)
 
         bottomController = BottomSheetController(
             this,
@@ -159,6 +163,27 @@ class MapFragment : Fragment() {
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(mapController)
+
+        mapViewModel.checkLocation.observe(viewLifecycleOwner) {
+            if (it == null) {
+                Log.d("locationSet", "NULL")
+                addBtn.isEnabled = false
+            } else {
+                Log.d("locationSet", it.toString())
+                addBtn.isEnabled = it
+            }
+        }
+
+        addBtn.setOnClickListener {
+            if (mapController.mLastKnownLocation != null) {
+                val latLngCur = LatLng(
+                        mapController.mLastKnownLocation!!.latitude,
+                        mapController.mLastKnownLocation!!.longitude
+                )
+                mapController.setMarkerByLatLng(latLngCur)
+                bottomController.setAddAreaMode(latLngCur)
+            }
+        }
 
         mapController.getLocationPermission()
 

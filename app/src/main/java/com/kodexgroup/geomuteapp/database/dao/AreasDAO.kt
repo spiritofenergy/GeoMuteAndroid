@@ -9,6 +9,9 @@ interface AreasDAO {
     @Query("SELECT * FROM areas")
     fun getAll() : LiveData<List<Areas>>
 
+    @Query("SELECT * FROM areas ORDER BY date_added DESC")
+    fun getAllDescByDate() : LiveData<List<Areas>>
+
     @Query("SELECT * FROM areas WHERE areas_title = :title")
     fun getByTitle(title: String) : LiveData<Areas>
 
