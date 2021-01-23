@@ -479,6 +479,7 @@ class MapController(
     }
 
     fun clearMap() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
         mainViewModel.lastChoosePosition.value = null
         mainViewModel.lastChooseRadius.value = null
     }
