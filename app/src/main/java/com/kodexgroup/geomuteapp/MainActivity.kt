@@ -1,16 +1,27 @@
 package com.kodexgroup.geomuteapp
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import com.kodexgroup.geomuteapp.screens.areaslist.AreasListFragment
+import com.kodexgroup.geomuteapp.screens.info.InfoFragment
+import com.kodexgroup.geomuteapp.screens.map.MapFragment
+import com.kodexgroup.geomuteapp.screens.settings.SettingsFragment
+import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,6 +43,25 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_SLIDE)
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_OPENED)
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_CLOSED)
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_CHANGED)
+            }
+
+        })
     }
 
     override fun onSupportNavigateUp() : Boolean {

@@ -23,6 +23,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var newTitleMarker: MutableLiveData<String> = MutableLiveData()
     var checkLocation: MutableLiveData<Boolean?> = MutableLiveData()
 
+
+    private val _drawerStatus: MutableLiveData<String> = MutableLiveData("")
     private val _editOpenMarker: MutableLiveData<Boolean> = MutableLiveData()
     private val _openMarker: MutableLiveData<String?> = MutableLiveData()
     private val _addCheckLiveData: MutableLiveData<Boolean> = MutableLiveData()
@@ -70,4 +72,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getEditOpenMarker() : Boolean {
         return _editOpenMarker.value ?: false
     }
+
+
+    fun setDrawerStatus(status: String) {
+        _drawerStatus.value = status
+    }
+
+    fun getDrawerStatusLiveData() : LiveData<String> {
+        return _drawerStatus
+    }
+
 }

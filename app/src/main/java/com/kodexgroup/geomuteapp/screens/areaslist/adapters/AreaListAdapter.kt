@@ -1,5 +1,7 @@
 package com.kodexgroup.geomuteapp.screens.areaslist.adapters
 
+import android.app.Application
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,13 +14,13 @@ import com.kodexgroup.geomuteapp.screens.areaslist.AreasListFragment
 import com.kodexgroup.geomuteapp.screens.areaslist.holders.AreaHolder
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
 
-class AreaListAdapter(private val mainViewModel: MainViewModel, private val areasDAO: AreasDAO) : RecyclerView.Adapter<AreaHolder>() {
+class AreaListAdapter(private val context: Context, private val mainViewModel: MainViewModel, private val areasDAO: AreasDAO) : RecyclerView.Adapter<AreaHolder>() {
 
     private var items: List<Areas> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AreaHolder {
         return AreaHolder(LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item_area, parent, false), mainViewModel, areasDAO)
+            .inflate(R.layout.list_item_area, parent, false), context, mainViewModel, areasDAO)
     }
 
     override fun onBindViewHolder(holder: AreaHolder, position: Int) {

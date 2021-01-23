@@ -10,10 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.observe
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -29,8 +31,10 @@ import com.kodexgroup.geomuteapp.screens.map.controllers.MapController
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
 import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.utils.App
+import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import com.kodexgroup.geomuteapp.utils.getBitmapFromVector
+import java.util.*
 
 class MapFragment : Fragment() {
 
@@ -39,12 +43,15 @@ class MapFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var db: AppDatabase
     private lateinit var areasDao: AreasDAO
-    private val mapViewModel: MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     private lateinit var addBtn: Button
 
+    private lateinit var mainFrame: View
+
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<NestedScrollView>
     private lateinit var frame: LinearLayout
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var mapController: MapController
     private lateinit var bottomController: BottomSheetController
@@ -54,6 +61,7 @@ class MapFragment : Fragment() {
     private lateinit var areasLiveData: LiveData<List<Areas>>
 
     private var settingOpened = false
+    private var isOpen = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,6 +87,8 @@ class MapFragment : Fragment() {
         mBottomSheetBehavior = BottomSheetBehavior.from(root.findViewById(R.id.bottom_map_area))
         frame = root.findViewById(R.id.frame)
         addBtn = root.findViewById(R.id.add_area)
+        mainFrame = root.findViewById(R.id.main_content)
+        progressBar = root.findViewById(R.id.progressBar)
 
         bottomController = BottomSheetController(
             this,
@@ -140,8 +150,8 @@ class MapFragment : Fragment() {
 
             mapController.updateMap(markers)
 
-            val marker = mapViewModel.lastChoosePosition.value
-            val circle = mapViewModel.lastChooseRadius.value
+            val marker = mainViewModel.lastChoosePosition.value
+            val circle = mainViewModel.lastChooseRadius.value
 
             if (marker != null) {
                 if (marker.title == "new") {
@@ -167,7 +177,7 @@ class MapFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(mapController)
 
-        mapViewModel.checkLocation.observe(viewLifecycleOwner) {
+        mainViewModel.checkLocation.observe(viewLifecycleOwner) {
             if (it == null) {
                 Log.d("locationSet", "NULL")
                 addBtn.isEnabled = false
@@ -189,6 +199,25 @@ class MapFragment : Fragment() {
         }
 
         mapController.getLocationPermission()
+
+        val drawerStatus = mainViewModel.getDrawerStatusLiveData()
+        drawerStatus.observe(viewLifecycleOwner, object : Observer<String> {
+            override fun onChanged(it: String) {
+
+                if (!isOpen) {
+                    if (it.isEmpty() || it == DrawerLayoutStatus.DRAWER_CLOSED) {
+                        progressBar.visibility = View.GONE
+                        mainFrame.visibility = View.VISIBLE
+                        isOpen = true
+                        drawerStatus.removeObserver(this)
+                    }
+                } else {
+                    drawerStatus.removeObserver(this)
+                }
+
+            }
+
+        })
 
         return root
     }

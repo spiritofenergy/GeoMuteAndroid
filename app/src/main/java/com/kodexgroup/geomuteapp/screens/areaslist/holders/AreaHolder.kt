@@ -1,7 +1,11 @@
 package com.kodexgroup.geomuteapp.screens.areaslist.holders
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,7 +22,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AreaHolder(itemView: View, private val mainViewModel: MainViewModel, private val areasDAO: AreasDAO) : RecyclerView.ViewHolder(itemView) {
+class AreaHolder(itemView: View, private val context: Context, private val mainViewModel: MainViewModel, private val areasDAO: AreasDAO) : RecyclerView.ViewHolder(itemView) {
 
     val view: View = itemView.findViewById(R.id.card_area)
     private val title: TextView = itemView.findViewById(R.id.title_point_list)
@@ -42,9 +46,21 @@ class AreaHolder(itemView: View, private val mainViewModel: MainViewModel, priva
         }
 
         deleteBtn.setOnClickListener {
-            Thread {
-                areasDAO.delete(area)
-            }.start()
+
+            val anim = AnimationUtils.loadAnimation(context, R.anim.fade_out)
+            anim.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    Thread {
+                        areasDAO.delete(area)
+                    }.start()
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {}
+            })
+
+            itemView.startAnimation(anim)
         }
 
         title.text = area.title
