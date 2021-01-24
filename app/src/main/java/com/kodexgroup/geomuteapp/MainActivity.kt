@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_MyApplication_NoActionBar)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -62,6 +63,11 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_NULL)
     }
 
     override fun onSupportNavigateUp() : Boolean {

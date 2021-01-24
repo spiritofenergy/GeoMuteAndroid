@@ -1,10 +1,11 @@
 package com.kodexgroup.geomuteapp.utils
 
-val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1986
+const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1986
 
 object DrawerLayoutStatus {
-    val DRAWER_CLOSED = "closed"
-    val DRAWER_OPENED = "closed"
-    val DRAWER_SLIDE = "slide"
-    val DRAWER_CHANGED = "changed"
+    const val DRAWER_NULL: String = ""
+    const val DRAWER_CLOSED = "closed"
+    const val DRAWER_OPENED = "closed"
+    const val DRAWER_SLIDE = "slide"
+    const val DRAWER_CHANGED = "changed"
 }

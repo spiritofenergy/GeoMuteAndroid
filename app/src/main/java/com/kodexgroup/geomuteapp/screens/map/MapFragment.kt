@@ -263,12 +263,14 @@ class MapFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        if (mapController.mMap != null) {
-            outState.putDouble("lat", mapController.mMap!!.cameraPosition.target.latitude)
-            outState.putDouble("lng", mapController.mMap!!.cameraPosition.target.longitude)
-            outState.putFloat("zoom", mapController.mMap!!.cameraPosition.zoom)
-            outState.putFloat("tilt", mapController.mMap!!.cameraPosition.tilt)
-            outState.putFloat("bearing", mapController.mMap!!.cameraPosition.bearing)
+        if (isAdded) {
+            if (mapController.mMap != null) {
+                outState.putDouble("lat", mapController.mMap!!.cameraPosition.target.latitude)
+                outState.putDouble("lng", mapController.mMap!!.cameraPosition.target.longitude)
+                outState.putFloat("zoom", mapController.mMap!!.cameraPosition.zoom)
+                outState.putFloat("tilt", mapController.mMap!!.cameraPosition.tilt)
+                outState.putFloat("bearing", mapController.mMap!!.cameraPosition.bearing)
+            }
         }
     }
 
