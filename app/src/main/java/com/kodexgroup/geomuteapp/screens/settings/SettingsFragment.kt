@@ -2,13 +2,11 @@ package com.kodexgroup.geomuteapp.screens.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -57,11 +55,16 @@ class SettingsFragment : Fragment() {
         })
 
         openNotification.setOnClickListener {
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                putExtra("app_package", activity?.packageName);
-                putExtra("app_uid", activity?.applicationInfo?.uid);
 
-                putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName);
+            val intent = Intent().apply {
+                action = "android.settings.APP_NOTIFICATION_SETTINGS"
+
+                //for Android 5-7
+                putExtra("app_package", activity?.packageName)
+                putExtra("app_uid", activity?.applicationInfo?.uid)
+
+                // for Android 8 and above
+                putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
             }
             startActivity(intent)
         }

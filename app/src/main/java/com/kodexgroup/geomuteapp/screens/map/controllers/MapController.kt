@@ -23,6 +23,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
@@ -373,8 +375,17 @@ class MapController(
                             Log.d("mapReadyLog", "READY")
                             getOpenMarker()
                         } else {
-                            alert?.dismiss()
-                            alert = getAlertDialog()
+                            val cancel = CancellationTokenSource()
+                            fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, cancel.token)
+                                .addOnSuccessListener {
+                                    if (it == null) {
+                                        alert?.dismiss()
+                                        alert = getAlertDialog()
+                                    } else {
+                                        getDeviceLocation()
+                                    }
+                                    cancel.cancel()
+                                }
                             mMap?.isMyLocationEnabled = false
                             mMap?.uiSettings?.isMyLocationButtonEnabled = false
                             mLastKnownLocation = null
