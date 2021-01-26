@@ -78,6 +78,8 @@ class AreasListFragment : Fragment() {
                         drawerStatus.removeObserver(this)
                     }
                 } else {
+                    progressBar.visibility = View.GONE
+                    listItem.visibility = View.VISIBLE
                     drawerStatus.removeObserver(this)
                 }
 

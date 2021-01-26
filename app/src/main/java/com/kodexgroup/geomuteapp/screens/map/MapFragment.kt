@@ -16,12 +16,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
@@ -29,7 +31,6 @@ import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.controllers.BottomSheetController
 import com.kodexgroup.geomuteapp.screens.map.controllers.MapController
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
@@ -44,6 +45,7 @@ class MapFragment : Fragment() {
     private lateinit var db: AppDatabase
     private lateinit var areasDao: AreasDAO
     private val mainViewModel: MainViewModel by activityViewModels()
+    private lateinit var mapViewModel: MapViewModel
 
     private lateinit var addBtn: Button
 
@@ -64,11 +66,13 @@ class MapFragment : Fragment() {
     private var isOpen = false
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
+
+        mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
 
         if (savedInstanceState != null) {
             Log.d("lat", savedInstanceState.getDouble("lat").toString())
@@ -91,11 +95,11 @@ class MapFragment : Fragment() {
         progressBar = root.findViewById(R.id.progressBar)
 
         bottomController = BottomSheetController(
-            this,
-            container,
-            inflater,
-            mBottomSheetBehavior,
-            frame
+                this,
+                container,
+                inflater,
+                mBottomSheetBehavior,
+                frame
         )
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -128,36 +132,36 @@ class MapFragment : Fragment() {
 
             for (area in areas) {
                 markers.add(
-                    Pair(
-                        MarkerOptions()
-                            .position(area.latLng)
-                            .title(area.title)
-                            .icon(
-                                getBitmapFromVector(
-                                    requireContext(),
-                                    R.drawable.ic_baseline_volume_off_24
-                                )
-                            ),
-                        CircleOptions()
-                            .center(area.latLng)
-                            .radius(area.radius)
-                            .strokeWidth(3f)
-                            .strokeColor(R.color.blue_500)
-                            .fillColor(R.color.blue_500_a)
-                    )
+                        Pair(
+                                MarkerOptions()
+                                        .position(area.latLng)
+                                        .title(area.title)
+                                        .icon(
+                                                getBitmapFromVector(
+                                                        requireContext(),
+                                                        R.drawable.ic_baseline_volume_off_24
+                                                )
+                                        ),
+                                CircleOptions()
+                                        .center(area.latLng)
+                                        .radius(area.radius)
+                                        .strokeWidth(3f)
+                                        .strokeColor(R.color.blue_500)
+                                        .fillColor(R.color.blue_500_a)
+                        )
                 )
             }
 
             mapController.updateMap(markers)
 
-            val marker = mainViewModel.lastChoosePosition.value
-            val circle = mainViewModel.lastChooseRadius.value
+            val marker = mapViewModel.lastChoosePosition.value
+            val circle = mapViewModel.lastChooseRadius.value
 
             if (marker != null) {
                 if (marker.title == "new") {
                     mapController.setMarker(
-                        MarkerOptions()
-                            .position(marker.position)
+                            MarkerOptions()
+                                    .position(marker.position)
                     )
 
                     if (circle != null) {
@@ -177,16 +181,6 @@ class MapFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(mapController)
 
-        mainViewModel.checkLocation.observe(viewLifecycleOwner) {
-            if (it == null) {
-                Log.d("locationSet", "NULL")
-                addBtn.isEnabled = false
-            } else {
-                Log.d("locationSet", it.toString())
-                addBtn.isEnabled = it
-            }
-        }
-
         addBtn.setOnClickListener {
             if (mapController.mLastKnownLocation != null) {
                 val latLngCur = LatLng(
@@ -194,7 +188,6 @@ class MapFragment : Fragment() {
                         mapController.mLastKnownLocation!!.longitude
                 )
                 mapController.setMarkerByLatLng(latLngCur)
-                bottomController.setAddAreaMode(latLngCur)
             }
         }
 

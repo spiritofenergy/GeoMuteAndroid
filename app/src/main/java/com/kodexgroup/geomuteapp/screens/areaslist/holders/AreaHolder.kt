@@ -35,11 +35,13 @@ class AreaHolder(itemView: View, private val context: Context, private val mainV
     fun onBind(area: Areas) {
 
         view.setOnClickListener {
+            mainViewModel.setDrawerStatus("")
             mainViewModel.setOpenMarker(area.title)
             Navigation.findNavController(it).navigate(R.id.next_fragment)
         }
 
         editBtn.setOnClickListener {
+            mainViewModel.setDrawerStatus("")
             mainViewModel.setOpenMarker(area.title)
             mainViewModel.setEditOpenMarker(true)
             Navigation.findNavController(it).navigate(R.id.next_fragment)

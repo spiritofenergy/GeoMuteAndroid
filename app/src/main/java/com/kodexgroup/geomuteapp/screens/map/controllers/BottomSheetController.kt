@@ -20,6 +20,7 @@ import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
 import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
 import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.screens.map.MapViewModel
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.format
 import java.util.*
@@ -32,6 +33,7 @@ class BottomSheetController(
     private val frame: LinearLayout) {
 
     private val mainViewModel: MainViewModel by fragment.activityViewModels()
+    private val mapViewModel: MapViewModel = ViewModelProvider(fragment).get(MapViewModel::class.java)
     private var checkAdd: LiveData<Boolean> = mainViewModel.getCheckLiveData()
 
     private val db = (fragment.requireContext().applicationContext as App).getDatabase()
@@ -91,16 +93,16 @@ class BottomSheetController(
 
         titleViewEditText.doOnTextChanged { text, _, _, _ ->
             Log.d("title", text.toString())
-            mainViewModel.newTitleMarker.value = text.toString()
+            mapViewModel.newTitleMarker.value = text.toString()
         }
 
         checkAdd.observe(fragment.viewLifecycleOwner) {
             Log.d("testingBug.fix", it.toString())
 
             if (it) {
-                mainViewModel.newTitleMarker.value = ""
-                mainViewModel.lastChoosePosition.value = null
-                mainViewModel.lastChooseRadius.value = null
+                mapViewModel.newTitleMarker.value = ""
+                mapViewModel.lastChoosePosition.value = null
+                mapViewModel.lastChooseRadius.value = null
                 setStartMode()
             } else {
                 titleViewEditText.setTextColor(ContextCompat.getColor(fragment.requireContext(), R.color.errors))
@@ -154,9 +156,9 @@ class BottomSheetController(
                     currentArea = null
                 }.start()
 
-                mainViewModel.newTitleMarker.value = ""
-                mainViewModel.lastChoosePosition.value = null
-                mainViewModel.lastChooseRadius.value = null
+                mapViewModel.newTitleMarker.value = ""
+                mapViewModel.lastChoosePosition.value = null
+                mapViewModel.lastChooseRadius.value = null
                 setStartMode()
             }
         }
@@ -183,7 +185,7 @@ class BottomSheetController(
         currentLatLng = latLng
         currentMarker = null
         currentArea = null
-        titleViewEditText.setText(mainViewModel.newTitleMarker.value)
+        titleViewEditText.setText(mapViewModel.newTitleMarker.value)
 
         titlePoint.visibility = View.GONE
         titleViewEditText.visibility = View.VISIBLE
@@ -215,7 +217,7 @@ class BottomSheetController(
         currentLatLng = marker.position
         currentMarker = marker
 
-        mainViewModel.newTitleMarker.value = ""
+        mapViewModel.newTitleMarker.value = ""
 
         val area = areasDao.getByTitle(marker.title)
         area.observe(fragment.viewLifecycleOwner, object : Observer<Areas> {

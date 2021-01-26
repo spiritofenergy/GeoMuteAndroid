@@ -29,6 +29,7 @@ import com.kodexgroup.geomuteapp.screens.map.MapFragment
 import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
 import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.screens.map.MapViewModel
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import java.util.*
 
@@ -46,23 +47,25 @@ class MapController(
     var position: CameraPosition? = null
 
     private val mainViewModel: MainViewModel by fragment.activityViewModels()
+    private val mapViewModel: MapViewModel = ViewModelProvider(fragment).get(MapViewModel::class.java)
 
     private var markersList: MutableList<Pair<Marker?, Circle?>> = mutableListOf()
 
     var mLastMarker: Marker? = null
     var mLastCircle: Circle? = null
+    private var alert: AlertDialog? = null
 
     private var setListener: SetMarkerListener? = null
 
     private var locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
             if (locationResult == null) {
-                mainViewModel.checkLocation.value = null
+                mapViewModel.checkLocation.value = null
                 return
             } else {
                 for (location in locationResult.locations) {
                     mLastKnownLocation = location
-                    mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+                    mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
                 }
             }
         }
@@ -91,7 +94,7 @@ class MapController(
                     .fillColor(R.color.blue_500_a)
             )
 
-            mainViewModel.lastChooseRadius.value = mLastCircle
+            mapViewModel.lastChooseRadius.value = mLastCircle
 
             markersList.add(Pair(null, mLastCircle!!))
         }
@@ -144,8 +147,8 @@ class MapController(
                             .fillColor(R.color.blue_500_a)
             )
 
-            mainViewModel.lastChoosePosition.value = mLastMarker
-            mainViewModel.lastChooseRadius.value = mLastCircle
+            mapViewModel.lastChoosePosition.value = mLastMarker
+            mapViewModel.lastChooseRadius.value = mLastCircle
 
             setCameraInPosition(latLng)
 
@@ -153,8 +156,8 @@ class MapController(
             setListener?.onSetMarker(latLng)
         } else {
             isExist = true
-            mainViewModel.lastChoosePosition.value = mLastMarker
-            mainViewModel.lastChooseRadius.value = mLastCircle
+            mapViewModel.lastChoosePosition.value = mLastMarker
+            mapViewModel.lastChooseRadius.value = mLastCircle
 
             setCameraInPosition(mLastMarker!!.position)
 
@@ -178,14 +181,14 @@ class MapController(
 
             mLastMarker = marker
 
-            mainViewModel.lastChoosePosition.value = mLastMarker
+            mapViewModel.lastChoosePosition.value = mLastMarker
 
             for ((_, circle) in markersList) {
 
                 if (circle != null && marker.position.latitude == circle.center.latitude &&
                         marker.position.longitude == circle.center.longitude) {
                     mLastCircle = circle
-                    mainViewModel.lastChooseRadius.value = mLastCircle
+                    mapViewModel.lastChooseRadius.value = mLastCircle
                 }
             }
 
@@ -349,7 +352,7 @@ class MapController(
                         if (mLastKnownLocation != null) {
                             mMap?.isMyLocationEnabled = true
                             mMap?.uiSettings?.isMyLocationButtonEnabled = true
-                            mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+                            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
 
                             Log.d("lat", position.toString())
                             if (position != null) {
@@ -370,7 +373,8 @@ class MapController(
                             Log.d("mapReadyLog", "READY")
                             getOpenMarker()
                         } else {
-                            getAlertDialog()
+                            alert?.dismiss()
+                            alert = getAlertDialog()
                             mMap?.isMyLocationEnabled = false
                             mMap?.uiSettings?.isMyLocationButtonEnabled = false
                             mLastKnownLocation = null
@@ -410,9 +414,9 @@ class MapController(
         }
 
         if (mLastKnownLocation == null) {
-            mainViewModel.checkLocation.value = null
+            mapViewModel.checkLocation.value = null
         } else {
-            mainViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
+            mapViewModel.checkLocation.value = !checkIsNear(LatLng(mLastKnownLocation!!.latitude, mLastKnownLocation!!.longitude))
         }
 
         Log.d("mapReadyLog", "READY")
@@ -447,7 +451,7 @@ class MapController(
         }
     }
 
-    private fun getAlertDialog() {
+    private fun getAlertDialog() : AlertDialog {
 
         val alertDialog = AlertDialog.Builder(fragment.requireContext())
             .setTitle("Позиция устройства не определена")
@@ -467,11 +471,14 @@ class MapController(
                 fragment.openSetting()
             }
             negativeBtn.setOnClickListener {
+                alertDialog.dismiss()
                 getDeviceLocation()
             }
         }
 
         alertDialog.show()
+
+        return alertDialog
     }
 
     fun stopLocationUpdates() {
@@ -480,7 +487,5 @@ class MapController(
 
     fun clearMap() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
-        mainViewModel.lastChoosePosition.value = null
-        mainViewModel.lastChooseRadius.value = null
     }
 }

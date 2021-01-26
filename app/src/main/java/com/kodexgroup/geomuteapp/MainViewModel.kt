@@ -18,12 +18,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var db: AppDatabase = getApplication<App>().getDatabase()
     private var areasDao: AreasDAO = db.areasDao()
 
-    var lastChoosePosition: MutableLiveData<Marker> = MutableLiveData()
-    var lastChooseRadius: MutableLiveData<Circle> = MutableLiveData()
-    var newTitleMarker: MutableLiveData<String> = MutableLiveData()
-    var checkLocation: MutableLiveData<Boolean?> = MutableLiveData()
-
-
     private val _drawerStatus: MutableLiveData<String> = MutableLiveData("")
     private val _editOpenMarker: MutableLiveData<Boolean> = MutableLiveData()
     private val _openMarker: MutableLiveData<String?> = MutableLiveData()

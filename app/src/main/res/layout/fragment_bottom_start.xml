@@ -36,7 +36,7 @@
                 android:gravity="center"
                 android:text="Выберите место на карте для создания новой области"
                 android:textColor="@color/black"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
