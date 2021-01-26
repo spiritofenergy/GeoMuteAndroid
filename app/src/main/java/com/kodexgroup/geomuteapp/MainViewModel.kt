@@ -2,13 +2,10 @@ package com.kodexgroup.geomuteapp
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
-import android.location.Location
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.maps.model.Circle
-import com.google.android.gms.maps.model.Marker
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas

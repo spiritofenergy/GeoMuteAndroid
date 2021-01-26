@@ -23,15 +23,14 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
+import com.kodexgroup.geomuteapp.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
+import com.kodexgroup.geomuteapp.screens.map.MapViewModel
 import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.MainViewModel
-import com.kodexgroup.geomuteapp.screens.map.MapViewModel
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import java.util.*
 
@@ -53,7 +52,7 @@ class MapController(
 
     private var markersList: MutableList<Pair<Marker?, Circle?>> = mutableListOf()
 
-    var mLastMarker: Marker? = null
+    private var mLastMarker: Marker? = null
     var mLastCircle: Circle? = null
     private var alert: AlertDialog? = null
 
@@ -73,7 +72,7 @@ class MapController(
         }
     }
 
-    var isExist = false
+    private var isExist = false
 
     val resizeRadiusListener: ResizeRadiusListener = object : ResizeRadiusListener {
         override fun onResize(center: LatLng, radius: Int) {

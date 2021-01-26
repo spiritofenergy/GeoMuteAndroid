@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kodexgroup.geomuteapp.MainViewModel
@@ -31,11 +31,7 @@ import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.controllers.BottomSheetController
 import com.kodexgroup.geomuteapp.screens.map.controllers.MapController
 import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.utils.App
-import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
-import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-import com.kodexgroup.geomuteapp.utils.getBitmapFromVector
-import java.util.*
+import com.kodexgroup.geomuteapp.utils.*
 
 class MapFragment : Fragment() {
 
@@ -57,6 +53,7 @@ class MapFragment : Fragment() {
 
     private lateinit var mapController: MapController
     private lateinit var bottomController: BottomSheetController
+    private lateinit var audioManager: AudioManagerMy
 
     private val markers: MutableList<Pair<MarkerOptions, CircleOptions>> = mutableListOf()
 
@@ -73,6 +70,8 @@ class MapFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
 
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
+
+        audioManager = AudioManagerMy(requireContext())
 
         if (savedInstanceState != null) {
             Log.d("lat", savedInstanceState.getDouble("lat").toString())
@@ -191,12 +190,21 @@ class MapFragment : Fragment() {
             }
         }
 
+        mapViewModel.checkLocation.observe(viewLifecycleOwner) {
+            if (it != null) {
+                if (it) {
+                    audioManager.cancelNotification()
+                } else {
+                    audioManager.createNotification()
+                }
+            }
+        }
+
         mapController.getLocationPermission()
 
         val drawerStatus = mainViewModel.getDrawerStatusLiveData()
         drawerStatus.observe(viewLifecycleOwner, object : Observer<String> {
             override fun onChanged(it: String) {
-
                 if (!isOpen) {
                     if (it.isEmpty() || it == DrawerLayoutStatus.DRAWER_CLOSED) {
                         progressBar.visibility = View.GONE
@@ -205,6 +213,9 @@ class MapFragment : Fragment() {
                         drawerStatus.removeObserver(this)
                     }
                 } else {
+                    progressBar.visibility = View.GONE
+                    mainFrame.visibility = View.VISIBLE
+                    isOpen = true
                     drawerStatus.removeObserver(this)
                 }
 

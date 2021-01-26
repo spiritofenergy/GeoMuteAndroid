@@ -1,27 +1,24 @@
 package com.kodexgroup.geomuteapp
 
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.provider.Settings
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import com.kodexgroup.geomuteapp.screens.areaslist.AreasListFragment
-import com.kodexgroup.geomuteapp.screens.info.InfoFragment
-import com.kodexgroup.geomuteapp.screens.map.MapFragment
-import com.kodexgroup.geomuteapp.screens.settings.SettingsFragment
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
+import com.kodexgroup.geomuteapp.utils.createNotificationChannel
 
 
 class MainActivity : AppCompatActivity() {
@@ -63,6 +60,28 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        createNotificationChannel(applicationContext)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(applicationContext)) {
+                startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (!notificationManager.isNotificationPolicyAccessGranted) {
+                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                startActivity(intent)
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        viewModel.setDrawerStatus("")
     }
 
     override fun onStop() {
