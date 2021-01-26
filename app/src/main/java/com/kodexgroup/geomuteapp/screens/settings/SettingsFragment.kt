@@ -57,7 +57,13 @@ class SettingsFragment : Fragment() {
         })
 
         openNotification.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_ASSISTANT_SETTINGS))
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra("app_package", activity?.packageName);
+                putExtra("app_uid", activity?.applicationInfo?.uid);
+
+                putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName);
+            }
+            startActivity(intent)
         }
 
         return root
