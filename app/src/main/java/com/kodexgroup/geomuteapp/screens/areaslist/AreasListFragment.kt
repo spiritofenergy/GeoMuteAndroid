@@ -1,7 +1,6 @@
 package com.kodexgroup.geomuteapp.screens.areaslist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,17 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
-import com.kodexgroup.geomuteapp.screens.areaslist.adapters.AreaListAdapter
+import com.kodexgroup.geomuteapp.utils.adapters.AreaListAdapter
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 

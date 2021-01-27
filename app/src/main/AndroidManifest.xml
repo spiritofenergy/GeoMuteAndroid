@@ -26,7 +26,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.kodexgroup.geomuteapp.MainActivity"
+            android:name="com.kodexgroup.geomuteapp.activity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/SplashTheme">
             <intent-filter>

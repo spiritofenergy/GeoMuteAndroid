@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp
+package com.kodexgroup.geomuteapp.activity
 
 import android.app.NotificationManager
 import android.content.Context
@@ -17,6 +17,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
+import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 import com.kodexgroup.geomuteapp.utils.createNotificationChannel
 
@@ -37,7 +39,8 @@ class MainActivity : AppCompatActivity() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_map, R.id.nav_list, R.id.nav_info, R.id.nav_settings), drawerLayout)
+            R.id.nav_map, R.id.nav_list, R.id.nav_info, R.id.nav_settings
+        ), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 

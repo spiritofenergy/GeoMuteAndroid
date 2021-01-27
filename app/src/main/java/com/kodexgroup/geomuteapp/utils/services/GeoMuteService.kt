@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.services
+package com.kodexgroup.geomuteapp.utils.services
 
 import android.app.Service
 import android.content.Intent

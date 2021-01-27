@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.screens.map
+package com.kodexgroup.geomuteapp.utils.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

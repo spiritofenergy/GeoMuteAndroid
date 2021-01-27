@@ -1,14 +1,14 @@
-package com.kodexgroup.geomuteapp.utils
+package com.kodexgroup.geomuteapp.utils.controllers
 
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.kodexgroup.geomuteapp.MainActivity
+import com.kodexgroup.geomuteapp.activity.MainActivity
 import com.kodexgroup.geomuteapp.R
+import com.kodexgroup.geomuteapp.utils.CHANNEL_ID
 
 
 class AudioController(private val context: Context) {

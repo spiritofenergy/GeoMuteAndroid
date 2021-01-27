@@ -1,18 +1,14 @@
-package com.kodexgroup.geomuteapp.screens.areaslist.adapters
+package com.kodexgroup.geomuteapp.utils.adapters
 
-import android.app.Application
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
-import com.kodexgroup.geomuteapp.screens.areaslist.AreasListFragment
-import com.kodexgroup.geomuteapp.screens.areaslist.holders.AreaHolder
-import com.kodexgroup.geomuteapp.screens.map.MapFragment
+import com.kodexgroup.geomuteapp.utils.holders.AreaHolder
 
 class AreaListAdapter(private val context: Context, private val mainViewModel: MainViewModel, private val areasDAO: AreasDAO) : RecyclerView.Adapter<AreaHolder>() {
 

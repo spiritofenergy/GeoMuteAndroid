@@ -1,24 +1,19 @@
-package com.kodexgroup.geomuteapp.screens.areaslist.holders
+package com.kodexgroup.geomuteapp.utils.holders
 
-import android.app.Application
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
-import com.kodexgroup.geomuteapp.screens.areaslist.AreasListFragment
 import com.kodexgroup.geomuteapp.utils.format
 import java.sql.Date
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 

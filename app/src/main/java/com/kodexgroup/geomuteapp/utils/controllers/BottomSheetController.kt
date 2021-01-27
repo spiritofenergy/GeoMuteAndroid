@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.screens.map.controllers
+package com.kodexgroup.geomuteapp.utils.controllers
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,9 +18,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
-import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
-import com.kodexgroup.geomuteapp.MainViewModel
-import com.kodexgroup.geomuteapp.screens.map.MapViewModel
+import com.kodexgroup.geomuteapp.utils.interfaces.ResizeRadiusListener
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
 import com.kodexgroup.geomuteapp.utils.App
 import com.kodexgroup.geomuteapp.utils.format
 import java.util.*

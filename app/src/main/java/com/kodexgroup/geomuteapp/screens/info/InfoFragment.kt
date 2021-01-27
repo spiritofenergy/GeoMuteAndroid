@@ -1,7 +1,6 @@
 package com.kodexgroup.geomuteapp.screens.info
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.kodexgroup.geomuteapp.BuildConfig
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
 

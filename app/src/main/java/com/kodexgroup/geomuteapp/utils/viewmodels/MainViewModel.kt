@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp
+package com.kodexgroup.geomuteapp.utils.viewmodels
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException

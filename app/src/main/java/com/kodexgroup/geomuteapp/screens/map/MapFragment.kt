@@ -23,15 +23,17 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
-import com.kodexgroup.geomuteapp.screens.map.controllers.BottomSheetController
-import com.kodexgroup.geomuteapp.screens.map.controllers.MapController
-import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
+import com.kodexgroup.geomuteapp.utils.controllers.BottomSheetController
+import com.kodexgroup.geomuteapp.utils.controllers.MapController
+import com.kodexgroup.geomuteapp.utils.interfaces.SetMarkerListener
 import com.kodexgroup.geomuteapp.utils.*
+import com.kodexgroup.geomuteapp.utils.controllers.AudioController
+import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
 
 class MapFragment : Fragment() {
 

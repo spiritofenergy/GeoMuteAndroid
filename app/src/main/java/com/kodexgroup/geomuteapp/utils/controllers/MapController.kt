@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.screens.map.controllers
+package com.kodexgroup.geomuteapp.utils.controllers
 
 import android.Manifest
 import android.app.Activity
@@ -25,12 +25,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
-import com.kodexgroup.geomuteapp.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
-import com.kodexgroup.geomuteapp.screens.map.MapViewModel
-import com.kodexgroup.geomuteapp.screens.map.interfaces.ResizeRadiusListener
-import com.kodexgroup.geomuteapp.screens.map.interfaces.SetMarkerListener
+import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
+import com.kodexgroup.geomuteapp.utils.interfaces.ResizeRadiusListener
+import com.kodexgroup.geomuteapp.utils.interfaces.SetMarkerListener
 import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
 import java.util.*
 

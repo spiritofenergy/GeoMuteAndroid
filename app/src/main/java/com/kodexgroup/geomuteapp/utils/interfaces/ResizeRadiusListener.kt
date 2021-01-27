@@ -1,4 +1,4 @@
-package com.kodexgroup.geomuteapp.screens.map.interfaces
+package com.kodexgroup.geomuteapp.utils.interfaces
 
 import com.google.android.gms.maps.model.LatLng
 
