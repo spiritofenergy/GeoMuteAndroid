@@ -15,4 +15,5 @@
     <color name="errors">#ff4c4c</color>
     <color name="sub_main_500">#34bf49</color>
     <color name="hint_color">#9E9E9E</color>
+    <color name="shadows">#1A000000</color>
 </resources>

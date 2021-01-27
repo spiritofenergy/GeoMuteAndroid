@@ -53,7 +53,7 @@ class MapFragment : Fragment() {
 
     private lateinit var mapController: MapController
     private lateinit var bottomController: BottomSheetController
-    private lateinit var audioManager: AudioManagerMy
+    private lateinit var audioManager: AudioController
 
     private val markers: MutableList<Pair<MarkerOptions, CircleOptions>> = mutableListOf()
 
@@ -71,7 +71,7 @@ class MapFragment : Fragment() {
 
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
 
-        audioManager = AudioManagerMy(requireContext())
+        audioManager = AudioController(requireContext())
 
         if (savedInstanceState != null) {
             Log.d("lat", savedInstanceState.getDouble("lat").toString())
@@ -192,11 +192,11 @@ class MapFragment : Fragment() {
 
         mapViewModel.checkLocation.observe(viewLifecycleOwner) {
             if (it != null) {
-                if (it) {
-                    audioManager.cancelNotification()
-                } else {
-                    audioManager.createNotification()
-                }
+//                if (it) {
+//                    audioManager.cancelNotification()
+//                } else {
+//                    audioManager.createNotification()
+//                }
             }
         }
 

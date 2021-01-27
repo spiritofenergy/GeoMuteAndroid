@@ -176,6 +176,7 @@ class BottomSheetController(
     fun setStartMode() {
         currentMarker = null
 
+        mBottomSheetBehavior.peekHeight = fragment.requireContext().resources.getDimension(R.dimen.start_peek).toInt()
         mBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         frame.removeAllViews()
         frame.addView(startViewBottom)
@@ -185,6 +186,7 @@ class BottomSheetController(
         currentLatLng = latLng
         currentMarker = null
         currentArea = null
+
         titleViewEditText.setText(mapViewModel.newTitleMarker.value)
 
         titlePoint.visibility = View.GONE
@@ -211,6 +213,7 @@ class BottomSheetController(
         frame.removeAllViews()
         frame.addView(setAreaViewBottom)
         mBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        mBottomSheetBehavior.peekHeight = fragment.requireContext().resources.getDimension(R.dimen.area_peek).toInt()
     }
 
     fun setEditAreaMode(marker: Marker) {
@@ -256,6 +259,7 @@ class BottomSheetController(
         frame.removeAllViews()
         frame.addView(setAreaViewBottom)
         mBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        mBottomSheetBehavior.peekHeight = fragment.requireContext().resources.getDimension(R.dimen.area_peek).toInt()
     }
 
     private fun setEditMode() {

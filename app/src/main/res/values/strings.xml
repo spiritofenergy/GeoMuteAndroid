@@ -12,4 +12,10 @@
     <string name="menu_settings">Настройки</string>
     <string name="channel_name">Отключение звука</string>
     <string name="channel_description">Уведомление отключения звука при нахождение в беззвучной зоне</string>
+    
+    <string name="version">Версия %1$s</string>
+
+    <string name="about_app"><b>GeoMute</b> - удобный сервис для управления настройками звука в зависимости от вашей геолокации. \n\n
+        Выбирайте необходимые вам области на карте, устанавливайте радиус и наслаждайтесь своевременным отключением звука.
+    </string>
 </resources>

@@ -11,7 +11,7 @@ import com.kodexgroup.geomuteapp.MainActivity
 import com.kodexgroup.geomuteapp.R
 
 
-class AudioManagerMy(private val context: Context) {
+class AudioController(private val context: Context) {
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
     private var isSoundOff = false
 
@@ -26,7 +26,7 @@ class AudioManagerMy(private val context: Context) {
             }
             val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
-            var builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_baseline_volume_off_black_24)
                     .setContentTitle("Звук отключен")
                     .setContentText("Вы находитесь в беззвучной зоне...")

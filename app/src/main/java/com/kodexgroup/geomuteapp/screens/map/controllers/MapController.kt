@@ -374,17 +374,10 @@ class MapController(
                             Log.d("mapReadyLog", "READY")
                             getOpenMarker()
                         } else {
-                            val cancel = CancellationTokenSource()
-                            fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, cancel.token)
-                                .addOnSuccessListener {
-                                    if (it == null) {
-                                        alert?.dismiss()
-                                        alert = getAlertDialog()
-                                    } else {
-                                        getDeviceLocation()
-                                    }
-                                    cancel.cancel()
-                                }
+
+                            alert?.dismiss()
+                            alert = getAlertDialog()
+
                             mMap?.isMyLocationEnabled = false
                             mMap?.uiSettings?.isMyLocationButtonEnabled = false
                             mLastKnownLocation = null
@@ -403,6 +396,25 @@ class MapController(
                     }
                 }
 
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message!!)
+        }
+    }
+
+    private fun getCurrentPosition() {
+        try {
+            if (mLocationPermissionGranted) {
+                val cancel = CancellationTokenSource()
+                fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, cancel.token)
+                        .addOnSuccessListener {
+                            if (it == null) {
+                                alert = getAlertDialog()
+                            } else {
+                                getDeviceLocation()
+                            }
+                            cancel.cancel()
+                        }
             }
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message!!)
@@ -482,7 +494,7 @@ class MapController(
             }
             negativeBtn.setOnClickListener {
                 alertDialog.dismiss()
-                getDeviceLocation()
+                getCurrentPosition()
             }
         }
 
