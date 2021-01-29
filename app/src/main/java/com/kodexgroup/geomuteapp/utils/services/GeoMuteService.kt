@@ -14,8 +14,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.LatLng
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
@@ -41,7 +41,40 @@ class GeoMuteService : Service() {
     private var audioSharedPref: SharedPreferences? = null
     private var isIn = false
 
-    private lateinit var timer: Timer
+    private var locationCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            if (locationResult == null) {
+                if (isIn) {
+                    isIn = false
+                    audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
+                            ?: 0)
+                }
+                return
+            } else {
+                for (location in locationResult.locations) {
+                    Log.d("MyService", location.toString())
+                    if (checkIn(location)) {
+                        if (!isIn) {
+                            val mode = audioController.setMute()
+                            isIn = true
+                            if (audioSharedPref?.getInt("cache_mode", 0) == 0) {
+                                audioSharedPref?.edit()?.apply {
+                                    putInt("cache_mode", mode)
+                                    apply()
+                                }
+                            }
+                        }
+                    } else {
+                        if (isIn) {
+                            isIn = false
+                            audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
+                                ?: 0)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -56,8 +89,6 @@ class GeoMuteService : Service() {
 
         audioSharedPref = getSharedPreferences(
                 "audio_cache", Context.MODE_PRIVATE)
-
-        timer = Timer()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         audioController = AudioController(this)
@@ -74,40 +105,8 @@ class GeoMuteService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                getLocation {
-                    if (it != null) {
-                        if (checkIn(it)) {
-                            if (!isIn) {
-                                val mode = audioController.setMute()
-                                isIn = true
-                                if (audioSharedPref?.getInt("cache_mode", 0) == 0) {
-                                    audioSharedPref?.edit()?.apply {
-                                        putInt("cache_mode", mode)
-                                        apply()
-                                    }
-                                }
-                            }
-                        } else {
-                            if (isIn) {
-                                isIn = false
-                                audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
-                                        ?: 0)
-                            }
-                        }
-                    } else {
-                        if (isIn) {
-                            isIn = false
-                            audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
-                                    ?: 0)
-                        }
-                    }
-                }
-            }
-        }, 0, 3000)
 
-
+        getLocation()
 
         return START_STICKY_COMPATIBILITY
     }
@@ -117,18 +116,25 @@ class GeoMuteService : Service() {
             audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
                     ?: 0)
         }
-        timer.cancel()
+        fusedLocationClient.removeLocationUpdates(locationCallback)
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder = Binder()
 
     @Throws(SecurityException::class)
-    private fun getLocation(task: (location: Location?) -> Unit) {
-        fusedLocationClient.lastLocation
-                .addOnSuccessListener {
-                    task(it)
-                }
+    private fun getLocation() {
+
+        fusedLocationClient.requestLocationUpdates(
+            LocationRequest().apply {
+                priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+                interval = 3000
+                fastestInterval = 1000
+                maxWaitTime = 5000
+            },
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     private fun checkIn(location: Location) : Boolean {
