@@ -192,16 +192,6 @@ class MapFragment : Fragment() {
             }
         }
 
-        mapViewModel.checkLocation.observe(viewLifecycleOwner) {
-            if (it != null) {
-//                if (it) {
-//                    audioManager.cancelNotification()
-//                } else {
-//                    audioManager.createNotification()
-//                }
-            }
-        }
-
         mapController.getLocationPermission()
 
         val drawerStatus = mainViewModel.getDrawerStatusLiveData()

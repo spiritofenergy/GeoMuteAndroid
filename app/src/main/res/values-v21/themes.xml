@@ -4,4 +4,9 @@
     <style name="Theme.MyApplication.SeekView" parent="Widget.AppCompat.SeekBar">
         <item name="android:thumbTint">@color/blue_500</item>
     </style>
+
+    <style name="ServiceSwitch">
+        <item name="colorControlActivated">@color/sub_main_500</item>
+        <item name="colorSwitchThumbNormal">@color/errors</item>
+    </style>
 </resources>
