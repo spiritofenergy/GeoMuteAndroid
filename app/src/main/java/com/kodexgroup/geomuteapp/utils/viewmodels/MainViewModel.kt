@@ -3,9 +3,11 @@ package com.kodexgroup.geomuteapp.utils.viewmodels
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
@@ -19,6 +21,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _editOpenMarker: MutableLiveData<Boolean> = MutableLiveData()
     private val _openMarker: MutableLiveData<String?> = MutableLiveData()
     private val _addCheckLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private val _isOpenMap: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val _bottomDialog: MutableLiveData<BottomSheetBehavior<NestedScrollView>> = MutableLiveData()
 
     fun tryAddAreas(area: Areas) {
         Thread {
@@ -71,6 +75,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getDrawerStatusLiveData() : LiveData<String> {
         return _drawerStatus
+    }
+
+
+    fun setOpenMap(openMap: Boolean) {
+        _isOpenMap.value = openMap
+    }
+
+    fun getOpenMapValue() : Boolean? {
+        return _isOpenMap.value
+    }
+
+
+    fun setBottomDialog(dialog: BottomSheetBehavior<NestedScrollView>) {
+        _bottomDialog.value = dialog
+    }
+
+    fun getBottomDialog() : BottomSheetBehavior<NestedScrollView>? {
+        return _bottomDialog.value
     }
 
 }

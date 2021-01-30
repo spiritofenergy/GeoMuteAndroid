@@ -5,12 +5,14 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import androidx.activity.addCallback
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -72,6 +74,7 @@ class MapFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
 
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
+        mainViewModel.setOpenMap(true)
 
         audioManager = AudioController(requireContext())
 
@@ -94,6 +97,8 @@ class MapFragment : Fragment() {
         addBtn = root.findViewById(R.id.add_area)
         mainFrame = root.findViewById(R.id.main_content)
         progressBar = root.findViewById(R.id.progressBar)
+
+        mainViewModel.setBottomDialog(mBottomSheetBehavior)
 
         bottomController = BottomSheetController(
                 this,
@@ -215,6 +220,14 @@ class MapFragment : Fragment() {
 
         })
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (mBottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                requireActivity().onBackPressed()
+            }
+        }
+
         return root
     }
 
@@ -235,6 +248,12 @@ class MapFragment : Fragment() {
         super.onStop()
         Log.d("clearMap", "creal")
         mapController.clearMap()
+    }
+
+    override fun onDestroy() {
+        mainViewModel.setOpenMap(false)
+
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(

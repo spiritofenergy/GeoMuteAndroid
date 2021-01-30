@@ -10,7 +10,7 @@
     <string name="menu_gallery">Ваши места</string>
     <string name="menu_slideshow">О приложении</string>
     <string name="menu_settings">Настройки</string>
-    <string name="channel_name">Отключение звука</string>
+    <string name="channel_name">Уведомления отключения звука</string>
     <string name="channel_description">Уведомление отключения звука при нахождение в беззвучной зоне</string>
     
     <string name="version">Версия %1$s</string>

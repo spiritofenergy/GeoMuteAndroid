@@ -43,14 +43,7 @@ class GeoMuteService : Service() {
 
     private var locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
-            if (locationResult == null) {
-                if (isIn) {
-                    isIn = false
-                    audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
-                            ?: 0)
-                }
-                return
-            } else {
+            if (locationResult != null) {
                 for (location in locationResult.locations) {
                     Log.d("MyService", location.toString())
                     if (checkIn(location)) {

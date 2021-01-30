@@ -24,6 +24,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
@@ -42,14 +43,13 @@ class MainActivity : AppCompatActivity() {
 
     private val connection: ServiceConnection = object  : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d("servicesd", "exist")
             isServiceRun = true
-
             unbindService(this)
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("servicesd", "no")
+        override fun onServiceDisconnected(name: ComponentName?) {  }
+
+        override fun onNullBinding(name: ComponentName?) {
             isServiceRun = false
         }
 
@@ -90,7 +90,6 @@ class MainActivity : AppCompatActivity() {
             override fun onDrawerStateChanged(newState: Int) {
                 viewModel.setDrawerStatus(DrawerLayoutStatus.DRAWER_CHANGED)
             }
-
         })
 
         createNotificationChannel(this)
@@ -136,6 +135,7 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         viewModel.setDrawerStatus("")
+
     }
 
     override fun onStop() {
