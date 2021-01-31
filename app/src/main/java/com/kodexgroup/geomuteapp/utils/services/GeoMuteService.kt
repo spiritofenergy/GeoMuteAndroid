@@ -11,13 +11,10 @@ import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.*
 import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.model.LatLng
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.activity.MainActivity
 import com.kodexgroup.geomuteapp.database.AppDatabase
@@ -26,7 +23,6 @@ import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.utils.CHANNEL_ID
 import com.kodexgroup.geomuteapp.utils.controllers.AudioController
 import com.kodexgroup.geomuteapp.utils.recievers.ServiceStopReceiver
-import java.util.*
 
 
 class GeoMuteService : Service() {
@@ -113,6 +109,7 @@ class GeoMuteService : Service() {
                     ?: 0)
         }
         fusedLocationClient.removeLocationUpdates(locationCallback)
+
         super.onDestroy()
     }
 
