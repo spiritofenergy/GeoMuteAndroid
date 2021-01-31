@@ -2,10 +2,12 @@ package com.kodexgroup.geomuteapp.utils.services
 
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.*
 import android.util.Log
@@ -17,11 +19,13 @@ import androidx.room.Room
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import com.kodexgroup.geomuteapp.R
+import com.kodexgroup.geomuteapp.activity.MainActivity
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
 import com.kodexgroup.geomuteapp.utils.CHANNEL_ID
 import com.kodexgroup.geomuteapp.utils.controllers.AudioController
+import com.kodexgroup.geomuteapp.utils.recievers.ServiceStopReceiver
 import java.util.*
 
 
@@ -92,19 +96,18 @@ class GeoMuteService : Service() {
             this.areas = areas
         }
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            startMyOwnForeground()
-        }
+
+        startMyOwnForeground()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         getLocation()
 
         return START_STICKY_COMPATIBILITY
     }
 
     override fun onDestroy() {
+        Log.d("MyService", "Destroy....")
         if (isIn) {
             audioController.setUnmute(audioSharedPref?.getInt("cache_mode", 0)
                     ?: 0)
@@ -144,17 +147,42 @@ class GeoMuteService : Service() {
         return false
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun startMyOwnForeground() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+
+        val stopIntent = Intent(this, ServiceStopReceiver::class.java)
+        stopIntent.apply {
+            action = "Delete"
+            putExtra("notificationId", 2)
+        }
+        val stopPendingIntent = PendingIntent.getBroadcast(this,0, stopIntent,0)
+
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-        val notification: Notification = notificationBuilder
                 .setOngoing(true)
                 .setContentTitle("GeoMute работает")
                 .setContentText("Отслеживание беззвучной зоны...")
+                .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_baseline_close_24, "Выключить", stopPendingIntent)
                 .setSmallIcon(R.drawable.ic_baseline_volume_off_black_24)
-                .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build()
-        startForeground(2, notification)
+
+        val notification: Notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notificationBuilder
+                    .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build()
+        } else {
+            notificationBuilder
+                    .build()
+        }
+
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            startForeground(2, notification)
+        } else {
+            startForeground(2, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        }
     }
 }

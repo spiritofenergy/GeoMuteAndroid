@@ -31,6 +31,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".utils.recievers.AudioCancelReceiver"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <receiver android:name=".utils.recievers.ServiceStopReceiver"
+            android:enabled="true"
+            android:exported="true"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -45,11 +53,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
+        
         <service
             android:name=".utils.services.GeoMuteService"
+            android:foregroundServiceType="location"
             android:exported="false" />
     </application>
 

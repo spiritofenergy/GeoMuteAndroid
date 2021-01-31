@@ -9,11 +9,11 @@ import androidx.core.app.NotificationManagerCompat
 import com.kodexgroup.geomuteapp.activity.MainActivity
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.utils.CHANNEL_ID
+import com.kodexgroup.geomuteapp.utils.NOTIFICATION_ID
 
 
 class AudioController(private val context: Context) {
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
-    private val notificationId = 24645
 
     fun setMute() : Int {
 
@@ -31,7 +31,7 @@ class AudioController(private val context: Context) {
             .setOngoing(true)
 
         with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
+            notify(NOTIFICATION_ID, builder.build())
         }
 
         val cacheMode: Int = mAudioManager?.ringerMode ?: 2
@@ -43,7 +43,7 @@ class AudioController(private val context: Context) {
 
     fun setUnmute(cacheMode: Int) {
         with(NotificationManagerCompat.from(context)) {
-            cancel(notificationId)
+            cancel(NOTIFICATION_ID)
         }
 
         val audioSharedPref = context.getSharedPreferences(

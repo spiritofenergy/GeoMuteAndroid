@@ -44,10 +44,12 @@ class MainActivity : AppCompatActivity() {
     private val connection: ServiceConnection = object  : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             isServiceRun = true
-            unbindService(this)
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {  }
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isServiceRun = false
+            switchService?.isChecked = false
+        }
 
         override fun onNullBinding(name: ComponentName?) {
             isServiceRun = false
@@ -125,6 +127,7 @@ class MainActivity : AppCompatActivity() {
                 getAlertService()
             } else {
                 val intent = Intent(this, GeoMuteService::class.java)
+                unbindService(connection)
                 stopService(intent)
             }
         }
@@ -164,6 +167,7 @@ class MainActivity : AppCompatActivity() {
             positiveBtn.setOnClickListener {
                 val intent = Intent(this, GeoMuteService::class.java)
                 startService(intent)
+                bindService(intent, connection, 0)
 
                 alertDialog.dismiss()
             }
