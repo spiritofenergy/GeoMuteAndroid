@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,16 +24,19 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.database.AppDatabase
 import com.kodexgroup.geomuteapp.database.dao.AreasDAO
 import com.kodexgroup.geomuteapp.database.entities.Areas
+import com.kodexgroup.geomuteapp.utils.App
+import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
+import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+import com.kodexgroup.geomuteapp.utils.controllers.AudioController
 import com.kodexgroup.geomuteapp.utils.controllers.BottomSheetController
 import com.kodexgroup.geomuteapp.utils.controllers.MapController
+import com.kodexgroup.geomuteapp.utils.getBitmapFromVector
 import com.kodexgroup.geomuteapp.utils.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.utils.*
-import com.kodexgroup.geomuteapp.utils.controllers.AudioController
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
 
 class MapFragment : Fragment() {
