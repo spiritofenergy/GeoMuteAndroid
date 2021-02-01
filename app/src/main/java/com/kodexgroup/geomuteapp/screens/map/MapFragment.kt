@@ -197,8 +197,6 @@ class MapFragment : Fragment() {
             }
         }
 
-        mapController.getLocationPermission()
-
         val drawerStatus = mainViewModel.getDrawerStatusLiveData()
         drawerStatus.observe(viewLifecycleOwner, object : Observer<String> {
             override fun onChanged(it: String) {

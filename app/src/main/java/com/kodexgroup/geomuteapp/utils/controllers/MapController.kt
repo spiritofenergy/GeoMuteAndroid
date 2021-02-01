@@ -227,8 +227,7 @@ class MapController(
         setListener = listener
     }
 
-    fun getLocationPermission() {
-        val permissions = mutableListOf<String>()
+    private fun getLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -240,21 +239,10 @@ class MapController(
         } else {
             Log.d("per", "false1")
             mLocationPermissionGranted = false
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-
-        if (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-                == PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d("per", "true2")
-            mLocationPermissionGranted = true and mLocationPermissionGranted
-        } else {
-            Log.d("per", "false2")
-            mLocationPermissionGranted = false
-            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+            ActivityCompat.requestPermissions(
+                    activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+            )
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -267,16 +255,11 @@ class MapController(
                 mLocationPermissionGranted = true and mLocationPermissionGranted
             } else {
                 mLocationPermissionGranted = false
-                    permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                ActivityCompat.requestPermissions(
+                    activity, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+                )
             }
-        }
-
-        if (!mLocationPermissionGranted) {
-            Log.d("per", mLocationPermissionGranted.toString())
-            ActivityCompat.requestPermissions(
-                    activity, permissions.toTypedArray(),
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-            )
         }
     }
 
@@ -377,10 +360,6 @@ class MapController(
 
                             alert?.dismiss()
                             alert = getAlertDialog()
-
-                            mMap?.isMyLocationEnabled = false
-                            mMap?.uiSettings?.isMyLocationButtonEnabled = false
-                            mLastKnownLocation = null
                         }
                     } else {
                         Log.d("geo", "Current location is null. Using defaults.")
