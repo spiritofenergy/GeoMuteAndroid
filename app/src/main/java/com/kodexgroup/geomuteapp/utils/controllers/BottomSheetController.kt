@@ -58,6 +58,7 @@ class BottomSheetController(
     private lateinit var currentLatLng: LatLng
     private var currentArea: Areas? = null
 
+    private val minRadius = 50
     private var radius = 0
     private var isEdit = false
     private var isModify = false
@@ -65,16 +66,16 @@ class BottomSheetController(
     init {
         seekRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                resizeRadiusListener?.onResize(currentLatLng, progress * 100)
-                radius = progress * 100
-                progressView.text = (progress * 100).toString()
+                resizeRadiusListener?.onResize(currentLatLng, progress * minRadius)
+                radius = progress * minRadius
+                progressView.text = (progress * minRadius).toString()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    resizeRadiusListener?.onResize(currentLatLng, seekBar.progress * 100)
-                    radius = seekBar.progress * 100
-                    progressView.text = (seekBar.progress * 100).toString()
+                    resizeRadiusListener?.onResize(currentLatLng, seekBar.progress * minRadius)
+                    radius = seekBar.progress * minRadius
+                    progressView.text = (seekBar.progress * minRadius).toString()
                 }
             }
 
@@ -84,9 +85,9 @@ class BottomSheetController(
                         isModify = true
                     }
 
-                    resizeRadiusListener?.onResize(currentLatLng, seekBar.progress * 100)
-                    radius = seekBar.progress * 100
-                    progressView.text = (seekBar.progress * 100).toString()
+                    resizeRadiusListener?.onResize(currentLatLng, seekBar.progress * minRadius)
+                    radius = seekBar.progress * minRadius
+                    progressView.text = (seekBar.progress * minRadius).toString()
                 }
             }
         })
@@ -201,7 +202,7 @@ class BottomSheetController(
 
         editBtn.visibility = View.GONE
 
-        choordsTxt.text = "${latLng.latitude.format(6)}, ${latLng.longitude.format(6)}"
+        choordsTxt.text = fragment.getString(R.string.coords, latLng.latitude, latLng.longitude)
         if (radius != null) {
             seekRadius.progress = radius
             this.radius = radius
@@ -226,7 +227,7 @@ class BottomSheetController(
         area.observe(fragment.viewLifecycleOwner, object : Observer<Areas> {
             override fun onChanged(it: Areas) {
                 currentArea = it
-                seekRadius.progress = it.radius.toInt() / 100
+                seekRadius.progress = it.radius.toInt() / minRadius
 
                 area.removeObserver(this)
             }
@@ -248,7 +249,7 @@ class BottomSheetController(
 
         editBtn.visibility = View.VISIBLE
 
-        choordsTxt.text = "${marker.position.latitude.format(6)}, ${marker.position.longitude.format(6)}"
+        choordsTxt.text = fragment.getString(R.string.coords, marker.position.latitude, marker.position.longitude)
 
         val edit = mainViewModel.getEditOpenMarker()
         if (edit) {
@@ -278,7 +279,7 @@ class BottomSheetController(
             isEdit = false
 
             if (currentArea != null && isModify) {
-                seekRadius.progress = currentArea!!.radius.toInt() / 100
+                seekRadius.progress = currentArea!!.radius.toInt() / minRadius
             }
 
             seekRadius.isEnabled = false

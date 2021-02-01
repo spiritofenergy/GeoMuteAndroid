@@ -14,8 +14,18 @@
     <string name="channel_description">Уведомление отключения звука при нахождение в беззвучной зоне</string>
     
     <string name="version">Версия %1$s</string>
+    <string name="coords">%1$.6f, %2$.6f</string>
 
     <string name="about_app"><b>GeoMute</b> - удобный сервис для управления настройками звука в зависимости от вашей геолокации. \n\n
         Выбирайте необходимые вам области на карте, устанавливайте радиус и наслаждайтесь своевременным отключением звука.
     </string>
+    <string name="start_area_title">Выберите место на карте для создания новой области</string>
+    <string name="image_description">Image view mute</string>
+    <string name="area_title">Title</string>
+    <string name="coords_title">Coords</string>
+    <string name="zero">0</string>
+    <string name="thousand">1000</string>
+    <string name="radius_title">Радиус зоны действия</string>
+    <string name="edit_image_view_description">Edit image view</string>
+    <string name="add">Добавить</string>
 </resources>
