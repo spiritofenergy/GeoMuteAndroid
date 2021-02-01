@@ -68,7 +68,7 @@ class InfoFragment : Fragment() {
         return root
     }
 
-    fun openMailToSupport() {
+    private fun openMailToSupport() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "plain/text"
             putExtra(Intent.EXTRA_EMAIL, arrayOf("welcome@seostor.ru"))
