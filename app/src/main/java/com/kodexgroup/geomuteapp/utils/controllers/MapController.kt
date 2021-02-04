@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -236,30 +237,15 @@ class MapController(
         ) {
             Log.d("per", "true1")
             mLocationPermissionGranted = true
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Log.d("TESTPER", "HELLO")
+                fragment.getSettingsPermissions()
+            }
         } else {
             Log.d("per", "false1")
             mLocationPermissionGranted = false
-            ActivityCompat.requestPermissions(
-                    activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-            )
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )
-                    == PackageManager.PERMISSION_GRANTED
-            ) {
-                mLocationPermissionGranted = true and mLocationPermissionGranted
-            } else {
-                mLocationPermissionGranted = false
-                ActivityCompat.requestPermissions(
-                    activity, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
-                )
-            }
+            fragment.getPermissions()
         }
     }
 
@@ -357,7 +343,7 @@ class MapController(
                             Log.d("mapReadyLog", "READY")
                             getOpenMarker()
                         } else {
-
+                            Log.d("lat", "OPEN ALRT")
                             alert?.dismiss()
                             alert = getAlertDialog()
                         }
@@ -480,10 +466,6 @@ class MapController(
         alertDialog.show()
 
         return alertDialog
-    }
-
-    fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     fun clearMap() {

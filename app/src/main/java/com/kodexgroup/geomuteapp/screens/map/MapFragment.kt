@@ -1,7 +1,11 @@
 package com.kodexgroup.geomuteapp.screens.map
 
+import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -12,6 +16,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.addCallback
+import androidx.annotation.RequiresApi
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -38,6 +43,7 @@ import com.kodexgroup.geomuteapp.utils.getBitmapFromVector
 import com.kodexgroup.geomuteapp.utils.interfaces.SetMarkerListener
 import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
+
 
 class MapFragment : Fragment() {
 
@@ -241,7 +247,7 @@ class MapFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        mapController.stopLocationUpdates()
+        mapController.clearMap()
     }
 
     override fun onStop() {
@@ -261,6 +267,7 @@ class MapFragment : Fragment() {
             permissions: Array<String?>,
             grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         mapController.mLocationPermissionGranted = false
         when (requestCode) {
             PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
@@ -269,6 +276,12 @@ class MapFragment : Fragment() {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
                     mapController.mLocationPermissionGranted = true
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        getSettingsPermissions()
+                    }
+
+                    mapController.getDeviceLocation()
                 }
             }
         }
@@ -289,8 +302,53 @@ class MapFragment : Fragment() {
         }
     }
 
+    fun getPermissions() {
+        requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun getSettingsPermissions() {
+        if (requireActivity().shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            Log.d("TESTPER", "TRUE")
+            getAlert()
+        } else {
+            Log.d("TESTPER", "FALSE")
+        }
+    }
+
     fun openSetting() {
         settingOpened = true
         startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+    }
+
+    private fun getAlert() {
+        val alertDialog = AlertDialog.Builder(requireContext())
+                .setTitle("Требуется дополнительное разрешение")
+                .setMessage("Для полной функциональности приложения необходимо разрешение получения вашего местоположения, когда приложение закрыто.")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Включить", null)
+                .setNegativeButton("Отмена", null)
+                .create()
+
+        alertDialog.setOnShowListener {
+            Log.d("openAlert", "OPEN")
+            val positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeBtn = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            positiveBtn.setOnClickListener {
+                alertDialog.dismiss()
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+                }
+            }
+            negativeBtn.setOnClickListener {
+                alertDialog.dismiss()
+
+            }
+        }
+
+        alertDialog.show()
     }
 }
