@@ -10,8 +10,6 @@ import android.os.Build
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -26,13 +24,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
-import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.screens.map.MapFragment
-import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
 import com.kodexgroup.geomuteapp.utils.interfaces.ResizeRadiusListener
 import com.kodexgroup.geomuteapp.utils.interfaces.SetMarkerListener
-import com.kodexgroup.geomuteapp.utils.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+import com.kodexgroup.geomuteapp.utils.viewmodels.MainViewModel
+import com.kodexgroup.geomuteapp.utils.viewmodels.MapViewModel
 import java.util.*
 
 class MapController(

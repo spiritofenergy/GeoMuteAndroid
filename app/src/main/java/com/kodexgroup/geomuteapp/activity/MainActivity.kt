@@ -1,6 +1,5 @@
 package com.kodexgroup.geomuteapp.activity
 
-import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.ComponentName
@@ -11,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.activity.viewModels
@@ -24,7 +22,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.kodexgroup.geomuteapp.R
 import com.kodexgroup.geomuteapp.utils.DrawerLayoutStatus
