@@ -123,9 +123,11 @@ class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 getAlertService()
             } else {
-                val intent = Intent(this, GeoMuteService::class.java)
-                unbindService(connection)
-                stopService(intent)
+                if (isServiceRun) {
+                    val intent = Intent(this, GeoMuteService::class.java)
+                    unbindService(connection)
+                    stopService(intent)
+                }
             }
         }
 

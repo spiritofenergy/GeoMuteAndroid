@@ -244,11 +244,6 @@ class MapFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        mapController.clearMap()
-    }
-
     override fun onStop() {
         super.onStop()
         Log.d("clearMap", "creal")
@@ -257,7 +252,6 @@ class MapFragment : Fragment() {
 
     override fun onDestroy() {
         mainViewModel.setOpenMap(false)
-
         super.onDestroy()
     }
 
